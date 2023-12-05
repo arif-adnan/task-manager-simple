@@ -25,6 +25,13 @@ const createTask = asyncWrapper(async (req, res) => {
 	}
   
 	try {
+	  // Check if a task already exists
+	  const existingTask = await Task.findOne({ title });
+  
+	  if (existingTask) {
+		return res.status(400).json({ error: 'Task exists' });
+	  }
+  
 	  const taskData = {
 		title,
 		description,
@@ -37,8 +44,7 @@ const createTask = asyncWrapper(async (req, res) => {
 	} catch (err) {
 	  res.status(500).json({ error: 'Could not create task' });
 	}
-});
-
+  });
 
 //@desc		Fetch Single Task
 //@route    GET /tasks/:id
@@ -67,27 +73,18 @@ const updateTask = asyncWrapper(async (req, res, next) => {
   
 	const allowedUpdates = ['description', 'status', 'dueDate'];
 	const updates = {};
-	
-	// Check if any of the disallowed fields are present in the request
-	const disallowedFields = Object.keys(req.body).filter(
-	  key => !allowedUpdates.includes(key)
-	);
   
-	if (disallowedFields.length > 0) {
-	  return next(createCustomError(`Cannot update: ${disallowedFields.join(', ')}`, 400));
-	}
-  
-	// Construct the updates object with allowed fields
-	for (const key in req.body) {
-	  if (allowedUpdates.includes(key)) {
+	// Construct the updates object with allowed fields from req.body
+	allowedUpdates.forEach(key => {
+	  if (req.body[key] !== undefined) {
 		updates[key] = req.body[key];
 	  }
-	}
+	});
   
 	try {
 	  const task = await Task.findOneAndUpdate(
 		{ _id: taskID },
-		updates,
+		{ $set: updates }, // Use $set to update only specified fields
 		{ new: true, runValidators: true }
 	  );
   
