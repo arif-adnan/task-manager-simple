@@ -138,7 +138,6 @@ PUT /api/v1/tasks/:id
 
 ```json
 {
-  "title": "Task 1 updated",
   "description": "Description for Task 1 updated.",
   "status": "completed",
   "dueDate": "2023-12-10"
@@ -155,8 +154,7 @@ DELETE /api/v1/tasks/:id
 
 ```json
 {
-  "message": "Task 6 has been deleted",
-  "deleteCount": 1
+  "message": "Task 6 has been deleted"
 }
 ```
 
